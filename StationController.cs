@@ -52,15 +52,10 @@ public class StationController : UdonSharpBehaviour
             //Debug.Log($"{nameof()} = {}");
         }
 
-        
-    }
-
-    private void FixedUpdate()
-    {
         if (inStation)
         {
-            transform.position = Vector3.SmoothDamp(transform.position, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.fixedDeltaTime);
-            transform.rotation = Quaternion.Euler(Vector3.SmoothDamp(transform.rotation.eulerAngles, syncedPlayerRotationEuler, ref previousPlayerAngularVelocityEuler, 0.04f, Mathf.Infinity, Time.fixedDeltaTime));
+            transform.position = Vector3.SmoothDamp(transform.position, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.deltaTime);
+            transform.rotation = Quaternion.Euler(Vector3.SmoothDamp(transform.rotation.eulerAngles, syncedPlayerRotationEuler, ref previousPlayerAngularVelocityEuler, 0.04f, Mathf.Infinity, Time.deltaTime));
         }
     }
 
@@ -80,7 +75,7 @@ public class StationController : UdonSharpBehaviour
         }
         else
         {
-            linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
+            //linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
         }
 
         setupComplete = true;
