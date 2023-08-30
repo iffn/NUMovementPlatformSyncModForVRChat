@@ -12,12 +12,17 @@ public class StationController : UdonSharpBehaviour
     [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
     [UdonSynced] float syncedLocalPlayerHeading = 0;
 
+    Vector3 syncedPlayerRotationEuler = Vector3.zero;
+
     public Transform GroundTransform { set; private get; }
 
     Transform[] movingTransforms;
 
     int previouslyAttachedTransformIndex = -1;
 
+    Vector3 previousPlayerPosition;
+    Vector3 previousPlayerLinearVelocity;
+    Vector3 previousPlayerAngularVelocityEuler;
 
     //CyanPlayerObjectPool stuff
     public VRCPlayerApi Owner;
@@ -25,6 +30,8 @@ public class StationController : UdonSharpBehaviour
     iffnsNuMovementMod iffnsNuMovementModLink;
 
     bool setupComplete = false;
+
+    bool inStation = false;
 
     private void Update()
     {
@@ -43,6 +50,17 @@ public class StationController : UdonSharpBehaviour
             Debug.Log($"{nameof(iffnsNuMovementModLink)} = {iffnsNuMovementModLink}");
             Debug.Log($"{nameof(setupComplete)} = {setupComplete}");
             //Debug.Log($"{nameof()} = {}");
+        }
+
+        
+    }
+
+    private void FixedUpdate()
+    {
+        if (inStation)
+        {
+            transform.position = Vector3.SmoothDamp(transform.position, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.fixedDeltaTime);
+            transform.rotation = Quaternion.Euler(Vector3.SmoothDamp(transform.rotation.eulerAngles, syncedPlayerRotationEuler, ref previousPlayerAngularVelocityEuler, 0.04f, Mathf.Infinity, Time.fixedDeltaTime));
         }
     }
 
@@ -101,15 +119,33 @@ public class StationController : UdonSharpBehaviour
             {
                 linkedStation.transform.parent = movingTransforms[attachedTransformIndex];
             }
-
         }
 
+        syncedPlayerRotationEuler = new Vector3(0, syncedLocalPlayerHeading, 0);
+        /*
         if (attachedTransformIndex != -1)
         {
             //Sync position - ToDo: Make smooth
-
             linkedStation.transform.localPosition = syncedLocalPlayerPosition;
             linkedStation.transform.localRotation = Quaternion.Euler(0, syncedLocalPlayerHeading, 0);
         }
+        */
+    }
+
+    public override void OnStationEntered(VRCPlayerApi player)
+    {
+        previousPlayerLinearVelocity = player.GetVelocity();
+        previousPlayerAngularVelocityEuler = Vector3.zero;
+        transform.position = player.GetPosition();
+        transform.rotation = player.GetRotation();
+        linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
+
+        inStation = true;
+    }
+
+    public override void OnStationExited(VRCPlayerApi player)
+    {
+        linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
+        inStation = false;
     }
 }
