@@ -56,7 +56,9 @@ public class StationController : UdonSharpBehaviour
         {
             transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.deltaTime);
 
-            transform.localRotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, 0.04f, Mathf.Infinity, Time.deltaTime), 0);
+            //ToDo: Test
+            Quaternion localHeading = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, 0.04f, Mathf.Infinity, Time.deltaTime), 0);
+            transform.LookAt(transform.parent.TransformDirection(localHeading * Vector3.forward),Vector3.up);
         }
     }
 
@@ -131,8 +133,6 @@ public class StationController : UdonSharpBehaviour
     {
         if (player.isLocal) return;
 
-        Debug.Log("Entered");
-
         previousPlayerLinearVelocity = player.GetVelocity();
         previousPlayerAngularVelocity = 0;
         transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
@@ -144,8 +144,6 @@ public class StationController : UdonSharpBehaviour
     public override void OnStationExited(VRCPlayerApi player)
     {
         if (player.isLocal) return;
-
-        Debug.Log("Exited");
 
         linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
         inStation = false;
