@@ -12,8 +12,6 @@ public class StationController : UdonSharpBehaviour
     [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
     [UdonSynced] float syncedLocalPlayerHeading = 0;
 
-    Vector3 syncedPlayerRotationEuler = Vector3.zero;
-
     public Transform GroundTransform { set; private get; }
 
     Transform[] movingTransforms;
@@ -22,7 +20,7 @@ public class StationController : UdonSharpBehaviour
 
     Vector3 previousPlayerPosition;
     Vector3 previousPlayerLinearVelocity;
-    Vector3 previousPlayerAngularVelocityEuler;
+    float previousPlayerAngularVelocity;
 
     //CyanPlayerObjectPool stuff
     public VRCPlayerApi Owner;
@@ -41,7 +39,9 @@ public class StationController : UdonSharpBehaviour
             Debug.Log($"Debug of {nameof(StationController)}");
             Debug.Log($"{nameof(attachedTransformIndex)} = {attachedTransformIndex}");
             Debug.Log($"{nameof(syncedLocalPlayerPosition)} = {syncedLocalPlayerPosition}");
+            Debug.Log($"transform.localPosition = {transform.localPosition}");
             Debug.Log($"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}");
+            Debug.Log($"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}");
             Debug.Log($"{nameof(GroundTransform)} = {GroundTransform}");
             Debug.Log($"{nameof(movingTransforms)}.Length = {movingTransforms.Length}");
             Debug.Log($"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}");
@@ -54,8 +54,9 @@ public class StationController : UdonSharpBehaviour
 
         if (inStation)
         {
-            transform.position = Vector3.SmoothDamp(transform.position, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.deltaTime);
-            transform.rotation = Quaternion.Euler(Vector3.SmoothDamp(transform.rotation.eulerAngles, syncedPlayerRotationEuler, ref previousPlayerAngularVelocityEuler, 0.04f, Mathf.Infinity, Time.deltaTime));
+            transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.deltaTime);
+
+            transform.localRotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, 0.04f, Mathf.Infinity, Time.deltaTime), 0);
         }
     }
 
@@ -116,7 +117,6 @@ public class StationController : UdonSharpBehaviour
             }
         }
 
-        syncedPlayerRotationEuler = new Vector3(0, syncedLocalPlayerHeading, 0);
         /*
         if (attachedTransformIndex != -1)
         {
@@ -134,9 +134,8 @@ public class StationController : UdonSharpBehaviour
         Debug.Log("Entered");
 
         previousPlayerLinearVelocity = player.GetVelocity();
-        previousPlayerAngularVelocityEuler = Vector3.zero;
-        transform.position = player.GetPosition();
-        transform.rotation = player.GetRotation();
+        previousPlayerAngularVelocity = 0;
+        transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
         linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
 
         inStation = true;
