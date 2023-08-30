@@ -129,6 +129,10 @@ public class StationController : UdonSharpBehaviour
 
     public override void OnStationEntered(VRCPlayerApi player)
     {
+        if (player.isLocal) return;
+
+        Debug.Log("Entered");
+
         previousPlayerLinearVelocity = player.GetVelocity();
         previousPlayerAngularVelocityEuler = Vector3.zero;
         transform.position = player.GetPosition();
@@ -140,6 +144,10 @@ public class StationController : UdonSharpBehaviour
 
     public override void OnStationExited(VRCPlayerApi player)
     {
+        if (player.isLocal) return;
+
+        Debug.Log("Exited");
+
         linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
         inStation = false;
     }
