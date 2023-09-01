@@ -108,6 +108,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,
         type: 3}
+      propertyPath: platformMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,
+        type: 3}
+      propertyPath: scaleMovement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,

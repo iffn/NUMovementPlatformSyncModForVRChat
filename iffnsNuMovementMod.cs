@@ -73,7 +73,7 @@ public class iffnsNuMovementMod : NUMovement
             linkedStationController.attachedTransformIndex = attachedTransformIndex;
         }
 
-        if (serialize || attachedTransformIndex != -1) linkedStationController.RequestSerialization();
+        if (serialize || attachedTransformIndex != -1) linkedStationController.serialize = true;
     }
 
     // Nu movement stuff

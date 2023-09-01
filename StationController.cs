@@ -31,6 +31,12 @@ public class StationController : UdonSharpBehaviour
 
     bool inStation = false;
 
+    float smoothTime = 0.1f;
+
+    float timeBetweenSerializations = 1f / 6f;
+    float nextSerializationTime = 0f;
+    public bool serialize = false;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Home))
@@ -52,13 +58,36 @@ public class StationController : UdonSharpBehaviour
             //Debug.Log($"{nameof()} = {}");
         }
 
+        if (Input.GetKeyDown(KeyCode.KeypadPlus))
+        {
+            smoothTime *= 1.1f;
+            Debug.Log($"{nameof(smoothTime)} now set to {smoothTime}");
+        }
+
+        if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        {
+            smoothTime /= 1.1f;
+            Debug.Log($"{nameof(smoothTime)} now set to {smoothTime}");
+        }
+
         if (inStation)
         {
-            transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.04f, Mathf.Infinity, Time.deltaTime);
+            transform.localPosition = syncedLocalPlayerPosition;
+            //transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.13f, Mathf.Infinity, Time.deltaTime);
+            transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+            transform.localRotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime), 0);
 
-            //ToDo: Test
+            /*
+            //ToDo: Fix
             Quaternion localHeading = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, 0.04f, Mathf.Infinity, Time.deltaTime), 0);
             transform.LookAt(transform.parent.TransformDirection(localHeading * Vector3.forward),Vector3.up);
+            */
+        }
+
+        if(serialize && Time.timeSinceLevelLoad > nextSerializationTime)
+        {
+            serialize = false;
+            RequestSerialization();
         }
     }
 
@@ -92,12 +121,14 @@ public class StationController : UdonSharpBehaviour
     //VRChat functions
     public override void OnPreSerialization()
     {
+        nextSerializationTime = Time.timeSinceLevelLoad + timeBetweenSerializations;
+
         if(!setupComplete) return;
 
         if (attachedTransformIndex != -1)
         {
             syncedLocalPlayerPosition = GroundTransform.InverseTransformPoint(Networking.LocalPlayer.GetPosition());
-            syncedLocalPlayerHeading = (GroundTransform.rotation * Networking.LocalPlayer.GetRotation()).eulerAngles.y;
+            syncedLocalPlayerHeading = (Quaternion.Inverse(GroundTransform.rotation) * Networking.LocalPlayer.GetRotation()).eulerAngles.y;
         }
     }
 
