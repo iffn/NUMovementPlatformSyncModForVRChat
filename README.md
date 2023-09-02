@@ -3,7 +3,9 @@ A system that syncs the player position relative to the station they're walking 
  
 ## Requirements
 Requires NUMovement by Nestorboy and CyanPlayerObjectPool by CyanPlayerObjectPool
+
 https://github.com/Nestorboy/NUMovement
+
 https://github.com/CyanLaser/CyanPlayerObjectPool
 
 ## How to use
