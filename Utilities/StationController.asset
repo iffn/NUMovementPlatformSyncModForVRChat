@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 2452848091418538228
+  scriptID: -7363326199820850106
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -662,7 +662,7 @@ MonoBehaviour:
       Data: 37|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsNUMovementPlatformSyncMod.NUMovementSyncMod, Assembly-CSharp
+      Data: NUMovementPlatformSyncMod.NUMovementSyncMod, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
