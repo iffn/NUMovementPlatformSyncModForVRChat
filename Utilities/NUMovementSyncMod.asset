@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: iffnsNuMovementMod
+  m_Name: NUMovementSyncMod
   m_EditorClassIdentifier: 
   serializedUdonProgramAsset: {fileID: 11400000, guid: 159ad7aa980e5854d84466d9337ec494,
     type: 2}
@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 6800743369931977645
+  scriptID: -2635176962602153510
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -5163,7 +5163,7 @@ MonoBehaviour:
       Data: 306|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: StationController, Assembly-CSharp
+      Data: iffnsNUMovementPlatformSyncMod.StationController, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

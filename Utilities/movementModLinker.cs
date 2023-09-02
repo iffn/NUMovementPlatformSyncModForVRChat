@@ -1,18 +1,20 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class movementModLinker : UdonSharpBehaviour
+namespace iffnsNUMovementPlatformSyncMod
 {
-    [SerializeField] iffnsNuMovementMod linkedMovementMod;
-
-    public iffnsNuMovementMod LinkedMovementMod
+    public class movementModLinker : UdonSharpBehaviour
     {
-        get
+        [SerializeField] NUMovementSyncMod linkedMovementMod;
+
+        public NUMovementSyncMod LinkedMovementMod
         {
-            return linkedMovementMod;
+            get
+            {
+                return linkedMovementMod;
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 808620504249668346
+  scriptID: 2452848091418538228
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -650,19 +650,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: iffnsNuMovementModLink
+      Data: NUMovementSyncModLink
     - Name: $v
       Entry: 7
       Data: 36|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: iffnsNuMovementModLink
+      Data: NUMovementSyncModLink
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 37|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: iffnsNuMovementMod, Assembly-CSharp
+      Data: iffnsNUMovementPlatformSyncMod.NUMovementSyncMod, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

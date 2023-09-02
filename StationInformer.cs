@@ -1,25 +1,27 @@
-﻿
-using Nessie.Udon.Movement;
+﻿using Nessie.Udon.Movement;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class StationInformer : UdonSharpBehaviour
+namespace iffnsNUMovementPlatformSyncMod
 {
-    [SerializeField] NUMovement linkedNuMovement;
-
-    public override void OnStationEntered(VRCPlayerApi player)
+    public class StationInformer : UdonSharpBehaviour
     {
-        if (!player.isLocal) return;
+        [SerializeField] NUMovement linkedNuMovement;
 
-        linkedNuMovement._ControllerDisable();
-    }
+        public override void OnStationEntered(VRCPlayerApi player)
+        {
+            if (!player.isLocal) return;
 
-    public override void OnStationExited(VRCPlayerApi player)
-    {
-        if (!player.isLocal) return;
+            linkedNuMovement._ControllerDisable();
+        }
 
-        linkedNuMovement._ControllerEnable();
+        public override void OnStationExited(VRCPlayerApi player)
+        {
+            if (!player.isLocal) return;
+
+            linkedNuMovement._ControllerEnable();
+        }
     }
 }
