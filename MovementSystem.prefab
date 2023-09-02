@@ -122,11 +122,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,
         type: 3}
-    - target: {fileID: 8957233543981803404, guid: 9e017f029f676234586edada439805b2,
-        type: 3}
-      propertyPath: movingTransforms.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e017f029f676234586edada439805b2, type: 3}
 --- !u!4 &1688289339618072363 stripped

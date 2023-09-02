@@ -1023,7 +1023,7 @@ PrefabInstance:
     - target: {fileID: 1055321711490392694, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: blueprintId
-      value: wrld_4afe7a08-acc2-46c9-9dd7-1417d278c7b2
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1094421957795580606, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -2172,6 +2172,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+      propertyPath: movingTransforms.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
       propertyPath: movingTransforms.Array.data[0]
       value: 
       objectReference: {fileID: 1604625706}
@@ -2698,17 +2703,17 @@ PrefabInstance:
     - target: {fileID: 8924252202806283872, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.7798033
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8924252202806283872, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.5633574
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8924252202806283872, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.349699
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8924252202806283872, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}

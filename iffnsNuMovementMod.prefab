@@ -99,8 +99,7 @@ MonoBehaviour:
   debugDrawer: 0
   drawerPrefab: {fileID: 4075677205986266398, guid: 032247d0e171edd40ae4077484945b1f,
     type: 3}
-  movingTransforms:
-  - {fileID: 0}
+  movingTransforms: []
 --- !u!114 &7967089044592107330
 MonoBehaviour:
   m_ObjectHideFlags: 0
