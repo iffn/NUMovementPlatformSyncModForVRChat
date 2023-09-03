@@ -12,8 +12,6 @@ https://github.com/CyanLaser/CyanPlayerObjectPool
 - Make sure NUMovement and CyanPlayerObjectPool are added to Unity project (See Requrements, added in Packages)
 - Put the MovementSytem Prefab into the Scene
 - Add all moving colliers where the player can stand on to the Moving Platforms array inside the MovementSystem -> iffnsNuMovementMod GameObject
-
-![image](https://github.com/iffn/iffnsNUMovementPlatformSyncModForVRChat/assets/18383974/a7c27977-7188-466a-9c65-3f9c77867728)
 - Add the StationInformer script to each Station where people can sit on and link the
 
 ## How it works
