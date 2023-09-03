@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 223712563380677063}
   - component: {fileID: 1280284881614983433}
   m_Layer: 10
-  m_Name: iffnsNuMovementMod
+  m_Name: NuMovementController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
