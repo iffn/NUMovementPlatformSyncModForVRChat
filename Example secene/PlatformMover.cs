@@ -1,10 +1,7 @@
 ﻿
-using TMPro;
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
-using static System.TimeZoneInfo;
 
 public class PlatformMover : UdonSharpBehaviour
 {

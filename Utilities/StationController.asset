@@ -662,7 +662,7 @@ MonoBehaviour:
       Data: 37|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: NUMovementPlatformSyncMod.NUMovementSyncMod, Assembly-CSharp
+      Data: NUMovementPlatformSyncMod.NUMovementSyncMod, iffn.VRChat.NUMovementPlatformSyncModForVRChat
     - Name: 
       Entry: 8
       Data: 
