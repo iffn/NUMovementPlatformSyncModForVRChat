@@ -118,7 +118,7 @@ namespace NUMovementPlatformSyncMod
 
         public void _OnCleanup()
         {
-            linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
+            linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
         }
 
         //VRChat functions
@@ -161,7 +161,7 @@ namespace NUMovementPlatformSyncMod
             previousPlayerLinearVelocity = Vector3.zero;
             previousPlayerAngularVelocity = 0;
             transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
-            linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
+            linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
 
             inStation = true;
         }
