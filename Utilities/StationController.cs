@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿//#define enableSmoothTimeControl
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -32,7 +33,7 @@ namespace NUMovementPlatformSyncMod
 
         bool inStation = false;
 
-        float smoothTime = 0.1f;
+        float smoothTime = 0.068f;
 
         readonly float timeBetweenSerializations = 1f / 6f;
         float nextSerializationTime = 0f;
@@ -59,6 +60,7 @@ namespace NUMovementPlatformSyncMod
                 //Debug.Log($"{nameof()} = {}");
             }
 
+#if enableSmoothTimeControl
             if (Input.GetKeyDown(KeyCode.KeypadPlus))
             {
                 smoothTime *= 1.1f;
@@ -70,13 +72,13 @@ namespace NUMovementPlatformSyncMod
                 smoothTime /= 1.1f;
                 Debug.Log($"{nameof(smoothTime)} now set to {smoothTime}");
             }
+#endif
 
             if (inStation)
             {
-                transform.localPosition = syncedLocalPlayerPosition;
-                //transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, 0.13f, Mathf.Infinity, Time.deltaTime);
                 transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
                 transform.localRotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime), 0);
+
 
                 /*
                 //ToDo: Fix level with horizon
@@ -156,7 +158,7 @@ namespace NUMovementPlatformSyncMod
         {
             if (player.isLocal) return;
 
-            previousPlayerLinearVelocity = player.GetVelocity();
+            previousPlayerLinearVelocity = Vector3.zero;
             previousPlayerAngularVelocity = 0;
             transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
             linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
