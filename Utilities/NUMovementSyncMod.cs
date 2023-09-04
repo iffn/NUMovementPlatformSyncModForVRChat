@@ -84,7 +84,7 @@ namespace NUMovementPlatformSyncMod
 
             if (attachedTransformIndex != -1 && linkedStation)
             {
-                linkedStation.transform.SetPositionAndRotation(Networking.LocalPlayer.GetPosition(), Networking.LocalPlayer.GetRotation());
+                linkedStation.transform.SetPositionAndRotation(Networking.LocalPlayer.GetPosition(), Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation);
                 linkedStation.UseStation(Networking.LocalPlayer);
             }
         }
