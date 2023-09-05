@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: MovementModLinker
+  m_Name: movementModLinker
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: de93621ee78b4694bab98fd27e21d857,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 23bf1731a905cd04fb1a73cab987e2fc,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -1708237745653249344
+  scriptID: 1805530544524704425
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
