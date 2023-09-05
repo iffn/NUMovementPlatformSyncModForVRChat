@@ -39,6 +39,8 @@ namespace NUMovementPlatformSyncMod
         float nextSerializationTime = 0f;
         public bool serialize = false;
 
+        float smoothHeading = 0;
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Home))
@@ -77,8 +79,10 @@ namespace NUMovementPlatformSyncMod
             if (inStation)
             {
                 transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
-                transform.localRotation = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime), 0);
 
+                smoothHeading = Mathf.SmoothDampAngle(smoothHeading, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+
+                transform.localRotation = Quaternion.Euler(0, smoothHeading , 0);
 
                 /*
                 //ToDo: Fix level with horizon
@@ -150,6 +154,7 @@ namespace NUMovementPlatformSyncMod
                 else
                 {
                     linkedStation.transform.parent = movingTransforms[attachedTransformIndex];
+                    smoothHeading = syncedLocalPlayerHeading;
                 }
             }
         }
@@ -162,6 +167,7 @@ namespace NUMovementPlatformSyncMod
             previousPlayerAngularVelocity = 0;
             transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
             linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
+            smoothHeading = syncedLocalPlayerHeading;
 
             inStation = true;
         }
