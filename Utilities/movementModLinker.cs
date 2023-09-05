@@ -5,7 +5,7 @@ using VRC.Udon;
 
 namespace NUMovementPlatformSyncMod
 {
-    public class movementModLinker : UdonSharpBehaviour
+    public class MovementModLinker : UdonSharpBehaviour
     {
         [SerializeField] NUMovementSyncMod linkedMovementMod;
 

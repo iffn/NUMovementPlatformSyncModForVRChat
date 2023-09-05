@@ -96,7 +96,7 @@ namespace NUMovementPlatformSyncMod
 
         public void _OnOwnerSet()
         {
-            movementModLinker linker = transform.parent.GetComponent<movementModLinker>();
+            MovementModLinker linker = transform.parent.parent.GetComponent<MovementModLinker>();
 
             NUMovementSyncModLink = linker.LinkedMovementMod;
 
