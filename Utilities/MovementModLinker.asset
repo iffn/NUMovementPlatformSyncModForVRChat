@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: MovementModLinker
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: de93621ee78b4694bab98fd27e21d857,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 23bf1731a905cd04fb1a73cab987e2fc,
     type: 2}
   udonAssembly: 
   assemblyError: 

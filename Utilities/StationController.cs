@@ -31,7 +31,7 @@ namespace NUMovementPlatformSyncMod
 
         bool setupComplete = false;
 
-        bool inStation = false;
+        bool onPlatform = false;
 
         float smoothTime = 0.068f;
 
@@ -76,7 +76,7 @@ namespace NUMovementPlatformSyncMod
             }
 #endif
 
-            if (inStation)
+            if (onPlatform)
             {
                 transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
 
@@ -134,8 +134,8 @@ namespace NUMovementPlatformSyncMod
 
             if (attachedTransformIndex != -1)
             {
-                syncedLocalPlayerPosition = GroundTransform.InverseTransformPoint(Networking.LocalPlayer.GetPosition());
-                syncedLocalPlayerHeading = (Quaternion.Inverse(GroundTransform.rotation) * Networking.LocalPlayer.GetRotation()).eulerAngles.y;
+                syncedLocalPlayerPosition = GroundTransform.InverseTransformPoint(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).position);
+                syncedLocalPlayerHeading = (Quaternion.Inverse(GroundTransform.rotation) * Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation).eulerAngles.y;
             }
         }
 
@@ -149,35 +149,28 @@ namespace NUMovementPlatformSyncMod
 
                 if (attachedTransformIndex == -1)
                 {
-
+                    linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
+                    onPlatform = false;
                 }
                 else
                 {
+                    onPlatform = true;
                     linkedStation.transform.parent = movingTransforms[attachedTransformIndex];
-                    smoothHeading = syncedLocalPlayerHeading;
+                    linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
+                    previousPlayerLinearVelocity = Vector3.zero;
+                    previousPlayerAngularVelocity = 0;
                 }
             }
         }
 
         public override void OnStationEntered(VRCPlayerApi player)
         {
-            if (player.isLocal) return;
-
-            previousPlayerLinearVelocity = Vector3.zero;
-            previousPlayerAngularVelocity = 0;
-            transform.SetPositionAndRotation(player.GetPosition(), player.GetRotation());
-            linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
-            smoothHeading = syncedLocalPlayerHeading;
-
-            inStation = true;
+            
         }
 
         public override void OnStationExited(VRCPlayerApi player)
         {
-            if (player.isLocal) return;
-
-            linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
-            inStation = false;
+            
         }
     }
 }
