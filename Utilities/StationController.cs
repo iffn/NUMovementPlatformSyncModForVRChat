@@ -1,20 +1,25 @@
-﻿//#define enableSmoothTimeControl
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
 namespace NUMovementPlatformSyncMod
 {
+    [RequireComponent(typeof(VRCStation))]
     public class StationController : UdonSharpBehaviour
     {
-        [SerializeField] VRCStation linkedStation;
+        /*
+        Remaining issues:
+        - Remote desktop players jitter in their rotation (Station turns smoothly)
+        */
+
+        VRCStation linkedStation;
 
         [UdonSynced] public int attachedTransformIndex = -1;
         [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
         [UdonSynced] float syncedLocalPlayerHeading = 0;
 
-        public Transform GroundTransform { set; private get; }
+        Transform groundTransform;
 
         Transform[] movingTransforms;
 
@@ -31,17 +36,23 @@ namespace NUMovementPlatformSyncMod
 
         bool setupComplete = false;
 
-        bool onPlatform = false;
-
-        float smoothTime = 0.068f;
+        readonly float smoothTime = 0.068f;
 
         readonly float timeBetweenSerializations = 1f / 6f;
         float nextSerializationTime = 0f;
         public bool serialize = false;
 
+        bool myStation = false;
+
         float smoothHeading = 0;
 
-        private void Update()
+        private void Start()
+        {
+            linkedStation = transform.GetComponent<VRCStation>();
+        }
+
+        //public override void PostLateUpdate()
+        void Update()
         {
             if (Input.GetKeyDown(KeyCode.Home))
             {
@@ -52,7 +63,7 @@ namespace NUMovementPlatformSyncMod
                 Debug.Log($"transform.localPosition = {transform.localPosition}");
                 Debug.Log($"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}");
                 Debug.Log($"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}");
-                Debug.Log($"{nameof(GroundTransform)} = {GroundTransform}");
+                Debug.Log($"{nameof(groundTransform)} = {groundTransform}");
                 Debug.Log($"{nameof(movingTransforms)}.Length = {movingTransforms.Length}");
                 Debug.Log($"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}");
                 Debug.Log($"{nameof(Owner)}.isLocal = {Owner.isLocal}");
@@ -62,40 +73,50 @@ namespace NUMovementPlatformSyncMod
                 //Debug.Log($"{nameof()} = {}");
             }
 
-#if enableSmoothTimeControl
-            if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            if (myStation)
             {
-                smoothTime *= 1.1f;
-                Debug.Log($"{nameof(smoothTime)} now set to {smoothTime}");
+                if(attachedTransformIndex >= 0)
+                {
+                    if(Time.timeSinceLevelLoad > nextSerializationTime)
+                    {
+                        RequestSerialization();
+                    }
+                }
             }
-
-            if (Input.GetKeyDown(KeyCode.KeypadMinus))
+            else
             {
-                smoothTime /= 1.1f;
-                Debug.Log($"{nameof(smoothTime)} now set to {smoothTime}");
+                if (attachedTransformIndex >= 0)
+                {
+                    transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+
+                    smoothHeading = Mathf.SmoothDampAngle(smoothHeading, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+
+                    transform.localRotation = Quaternion.Euler(0, smoothHeading, 0);
+                }
             }
-#endif
+        }
 
-            if (onPlatform)
-            {
-                transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+        public void LocalPlayerAttachedToTransform(Transform newTransform, int index)
+        {
+            attachedTransformIndex = index;
+            groundTransform = newTransform;
+            transform.parent = newTransform;
+        }
 
-                smoothHeading = Mathf.SmoothDampAngle(smoothHeading, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+        public void LocalPlayerSwitchedTransform(Transform newTransform, int index)
+        {
+            attachedTransformIndex = index;
+            groundTransform = newTransform;
+            transform.parent = newTransform;
+        }
 
-                transform.localRotation = Quaternion.Euler(0, smoothHeading , 0);
 
-                /*
-                //ToDo: Fix level with horizon
-                Quaternion localHeading = Quaternion.Euler(0, Mathf.SmoothDampAngle(transform.localRotation.eulerAngles.y, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, 0.04f, Mathf.Infinity, Time.deltaTime), 0);
-                transform.LookAt(transform.parent.TransformDirection(localHeading * Vector3.forward),Vector3.up);
-                */
-            }
-
-            if (serialize && Time.timeSinceLevelLoad > nextSerializationTime)
-            {
-                serialize = false;
-                RequestSerialization();
-            }
+        public void LocalPlayerDetachedFromTransform()
+        {
+            attachedTransformIndex = -1;
+            groundTransform = null;
+            
+            RequestSerialization();
         }
 
         public void _OnOwnerSet()
@@ -111,10 +132,13 @@ namespace NUMovementPlatformSyncMod
                 linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
 
                 NUMovementSyncModLink.AttachStation(this, linkedStation);
+
+                myStation = true;
             }
             else
             {
                 //linkedStation.PlayerMobility = VRCStation.Mobility.Immobilize;
+                myStation = false;
             }
 
             setupComplete = true;
@@ -134,11 +158,11 @@ namespace NUMovementPlatformSyncMod
 
             if (attachedTransformIndex != -1)
             {
-                syncedLocalPlayerPosition = GroundTransform.InverseTransformPoint(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).position);
-                syncedLocalPlayerHeading = (Quaternion.Inverse(GroundTransform.rotation) * Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation).eulerAngles.y;
+                syncedLocalPlayerPosition = transform.localPosition;
+                syncedLocalPlayerHeading = transform.localRotation.eulerAngles.y;
             }
         }
-
+        
         public override void OnDeserialization()
         {
             if (!setupComplete) return;
@@ -150,12 +174,12 @@ namespace NUMovementPlatformSyncMod
                 if (attachedTransformIndex == -1)
                 {
                     linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
-                    onPlatform = false;
                 }
                 else
                 {
-                    onPlatform = true;
-                    linkedStation.transform.parent = movingTransforms[attachedTransformIndex];
+                    transform.parent = movingTransforms[attachedTransformIndex];
+                    transform.SetPositionAndRotation(Owner.GetPosition(), Owner.GetRotation());
+
                     linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
                     previousPlayerLinearVelocity = Vector3.zero;
                     previousPlayerAngularVelocity = 0;
