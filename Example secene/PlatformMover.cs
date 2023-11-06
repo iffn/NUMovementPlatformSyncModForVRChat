@@ -1,20 +1,24 @@
-﻿
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
-public class PlatformMover : UdonSharpBehaviour
+namespace NUMovementPlatformSyncMod.ExampleScene
 {
-    double transitionTime = 2;
-
-    [SerializeField] Transform startPosition;
-    [SerializeField] Transform endPosition;
-
-    private void Update()
+    public class PlatformMover : UdonSharpBehaviour
     {
-        float lerpValue = (float)(Networking.GetServerTimeInSeconds() % (transitionTime * 2) / transitionTime);
-        if (lerpValue > 1) lerpValue = 2 - lerpValue;
+        double transitionTime = 2;
 
-        transform.position = Vector3.Lerp(a: startPosition.position, b: endPosition.position, t: lerpValue);
+        [SerializeField] Transform startPosition;
+        [SerializeField] Transform endPosition;
+
+        private void Update()
+        {
+            float lerpValue = (float)(Networking.GetServerTimeInSeconds() % (transitionTime * 2) / transitionTime);
+            if (lerpValue > 1) lerpValue = 2 - lerpValue;
+
+            transform.SetPositionAndRotation(
+                Vector3.Lerp(startPosition.position, endPosition.position, lerpValue),
+                Quaternion.Lerp(startPosition.rotation, endPosition.rotation, lerpValue));
+        }
     }
 }

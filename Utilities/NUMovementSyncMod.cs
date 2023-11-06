@@ -17,37 +17,95 @@ namespace NUMovementPlatformSyncMod
     public class NUMovementSyncMod : NUMovement
     {
         /*
+        Purpose:
+        - Implement NUMovement (which teleports the player) with the correct world interfaces
+            - Stations
+            - Disable NUVovement (For example for custom swimming system)
+        - Detect the attached transform and inform the station controller
+        - Put local player into the station after each teleport if the attached transform recommends it
+
         Remaining issues:
         - VR: Playspace sometimes rotates relative to the platform the player is standing on when turning their head
         */
 
         //Variable definitions
-        VRCStation linkedStation;
-        [SerializeField] Transform[] movingTransforms;
+        [SerializeField] float airTimeBeforePlatformDetach = 2;
+        [SerializeField] PlayerColliderController[] movingTransforms;
 
-        public Transform[] MovingTransforms
+        public PlayerColliderController[] MovingTransforms
         {
             get
             {
                 return movingTransforms;
             }
+            set
+            {
+                movingTransforms = value;
+            }
         }
 
-        public PlatformState currentPlatformState = PlatformState.InAir;
-
-        public int attachedTransformIndex = -1;
-
-        StationController linkedStationController;
+        public StationController LinkedStationController { get; private set; }
+        VRCStation linkedStation;
+        PlatformState currentPlatformState = PlatformState.InAir;
+        int attachedTransformIndex = -1;
         Transform previouslyAttachedTransform;
+        PlayerColliderController attachedPlayerCollider;
+        bool isInVR;
+        VRCPlayerApi.TrackingDataType teleportTrackingDataType;
+        float detachTime;
 
+        //Setup and debug
         public void AttachStation(StationController linkedStationController, VRCStation linkedStation)
         {
-            this.linkedStationController = linkedStationController;
+            Debug.Log("Station attached");
+
+            this.LinkedStationController = linkedStationController;
             this.linkedStation = linkedStation;
         }
 
-        [SerializeField] float airTimeBeforePlatformDetach = 2;
-        float detachTime;
+        public string[] DebugText
+        {
+            get
+            {
+                string[] returnString = new string[]
+                {
+                    $"Debug of {nameof(NUMovementPlatformSyncMod)}",
+                    $"{nameof(linkedStation)} = {linkedStation}",
+                    $"{nameof(movingTransforms)}.Length = {((movingTransforms != null) ? movingTransforms.Length.ToString() : "null")}",
+                    $"{nameof(LinkedStationController)}.Length = {LinkedStationController}",
+                    $"{nameof(previouslyAttachedTransform)}.Length = {previouslyAttachedTransform}",
+                    $"{nameof(attachedTransformIndex)}.Length = {attachedTransformIndex}",
+                    $"{nameof(currentPlatformState)}.Length = {currentPlatformState}", //ToCheck: enum to string in U#
+                };
+                
+                return returnString;
+            }
+        }
+
+        /*
+        private void Start() //Use protected override void ControllerStart() instead
+        {
+            
+        }
+        */
+
+        //Runtime
+        private void Update()
+        {
+            if (currentPlatformState == PlatformState.Disabled || currentPlatformState == PlatformState.Immobilized) return;
+
+            if (LinkedStationController == null) return;
+
+            if (previouslyAttachedTransform != GroundTransform)
+            {
+                previouslyAttachedTransform = GroundTransform;
+
+                if (GroundTransform) attachedPlayerCollider = GroundTransform.GetComponent<PlayerColliderController>();
+                else GroundTransform = null;
+
+                OnGroundChange();
+            }
+        }
 
         public void DetachFromStationWhenInAirEvent()
         {
@@ -61,36 +119,8 @@ namespace NUMovementPlatformSyncMod
                 return; //Ignore if no longer in the air
             }
 
-            linkedStationController.LocalPlayerDetachedFromTransform();
+            LinkedStationController.LocalPlayerDetachedFromTransform();
             attachedTransformIndex = -1;
-        }
-
-        //Unity functions
-        private void Update()
-        {
-            /*
-            if (Input.GetKeyDown(KeyCode.Home))
-            {
-                Debug.Log($" ");
-                Debug.Log($"Debug of {nameof(NUMovementSyncMod)}");
-                Debug.Log($"{nameof(linkedStation)} = {linkedStation}");
-                Debug.Log($"{nameof(movingTransforms)}.Length = {movingTransforms.Length}");
-                Debug.Log($"{nameof(linkedStationController)} = {linkedStationController}");
-                Debug.Log($"{nameof(previouslyAttachedTransform)} = {previouslyAttachedTransform}");
-                //Debug.Log($"{nameof()} = {}");
-            }
-            */
-
-            if (currentPlatformState == PlatformState.Disabled || currentPlatformState == PlatformState.Immobilized) return;
-
-            if (linkedStationController == null) return;
-
-            if (previouslyAttachedTransform != GroundTransform)
-            {
-                OnGroundChange();
-
-                previouslyAttachedTransform = GroundTransform;
-            }
         }
 
         void OnGroundChange()
@@ -101,8 +131,6 @@ namespace NUMovementPlatformSyncMod
 
                 if(attachedTransformIndex >= 0)
                 {
-                    Debug.Log("Now waiting for detach");
-
                     detachTime = Time.time + airTimeBeforePlatformDetach;
                     SendCustomEventDelayedSeconds(nameof(DetachFromStationWhenInAirEvent), airTimeBeforePlatformDetach);
                 }
@@ -116,34 +144,32 @@ namespace NUMovementPlatformSyncMod
 
         void HandleAttachedTransform()
         {
-            for (int i = 0; i < MovingTransforms.Length; i++)
+            if (attachedPlayerCollider)
             {
-                if (MovingTransforms[i] == GroundTransform)
-                {
-                    if (attachedTransformIndex >= 0)
-                    {
-                        linkedStationController.LocalPlayerSwitchedTransform(GroundTransform, i);
-                    }
-                    else
-                    {
-                        linkedStationController.LocalPlayerAttachedToTransform(GroundTransform, i);
-                    }
-
-                    attachedTransformIndex = i;
-
-                    return;
-                }
+                attachedTransformIndex = attachedPlayerCollider.PlatformIndex;
             }
-
-            //if not found
-            if (attachedTransformIndex < 0) return; //Ignore if already not attached
-
-            linkedStationController.LocalPlayerDetachedFromTransform();
-
-            attachedTransformIndex = -1;
+            else
+            {
+                if (attachedTransformIndex < 0) return; //Ignore if already not attached
+                LinkedStationController.LocalPlayerDetachedFromTransform();
+                attachedTransformIndex = -1;
+            }
         }
 
-        // Nu movement stuff
+        // NUMovement stuff
+        protected override void ControllerStart()
+        {
+            base.ControllerStart();
+
+            isInVR = Networking.LocalPlayer.IsUserInVR();
+            teleportTrackingDataType = isInVR ? VRCPlayerApi.TrackingDataType.AvatarRoot : VRCPlayerApi.TrackingDataType.Origin;
+
+            for (int i = 0; i < movingTransforms.Length; i++)
+            {
+                movingTransforms[i].Setup(i);
+            }
+        }
+
         public override void _SetCanMove(bool canMove)
         {
             base._SetCanMove(canMove);
@@ -176,9 +202,12 @@ namespace NUMovementPlatformSyncMod
         {
             base.ApplyToPlayer();
 
-            if (attachedTransformIndex != -1 && linkedStation)
+            if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer)
             {
-                linkedStation.transform.SetPositionAndRotation(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation); //Avatar root currently defines the player position
+                linkedStation.transform.SetPositionAndRotation(
+                    Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).position,
+                    Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).rotation);
+
                 linkedStation.UseStation(Networking.LocalPlayer);
             }
         }

@@ -2,77 +2,105 @@
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using Cyan.PlayerObjectPool;
 
 namespace NUMovementPlatformSyncMod
 {
     [RequireComponent(typeof(VRCStation))]
-    public class StationController : UdonSharpBehaviour
+    [RequireComponent(typeof(NUMovementSyncModLinker))]
+    public class StationController : CyanPlayerObjectPoolObject
     {
         /*
+        Purpose:
+        - Interact with CyanObjectPool to assign each player a station
+        - Sync position of local player position and attached transform to other players
+        - Position remote players smoothly
+        - Link station of local player to NUMovementSyncMod
+        
         Remaining issues:
         - Remote desktop players jitter in their rotation (Station turns smoothly)
         */
 
-        VRCStation linkedStation;
-
+        //Synced values
         [UdonSynced] public int attachedTransformIndex = -1;
         [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
         [UdonSynced] float syncedLocalPlayerHeading = 0;
 
+        //Static values
+        readonly float smoothTime = 0.068f;
+        readonly float timeBetweenSerializations = 1f / 6f;
+
+        //Static values
+        VRCStation linkedStation;
+        NUMovementSyncMod NUMovementSyncModLink;
+        PlayerColliderController[] movingTransforms;
+        VRCPlayerApi localPlayer;
+        bool inVR;
+        bool myStation = false;
+
+        //Runtime values
+        float smoothHeading = 0;
+        public bool serialize = false;
+        float nextSerializationTime = 0f;
+        public bool OnOwnerSetRan { get; private set; } = false;
         Transform groundTransform;
-
-        Transform[] movingTransforms;
-
         int previouslyAttachedTransformIndex = -1;
-
         Vector3 previousPlayerPosition;
         Vector3 previousPlayerLinearVelocity;
         float previousPlayerAngularVelocity;
+        Quaternion initialLocalPlayspaceRotation;
+        Vector3 initialLocalPlayspaceDirection;
 
-        //CyanPlayerObjectPool stuff
-        public VRCPlayerApi Owner;
+        //Funcitons
+        void Setup()
+        {
+            NUMovementSyncModLink = transform.GetComponent<NUMovementSyncModLinker>().LinkedNUMovementSyncMod;
+            linkedStation = transform.GetComponent<VRCStation>();
+            inVR = Networking.LocalPlayer.IsUserInVR();
+        }
 
-        NUMovementSyncMod NUMovementSyncModLink;
+        void CheckAndFixPlayspaceInVR()
+        {
+            Vector3 originalPlayspaceDirection = groundTransform.rotation * initialLocalPlayspaceDirection;
+            originalPlayspaceDirection.y = 0;
 
-        bool setupComplete = false;
 
-        readonly float smoothTime = 0.068f;
+        }
 
-        readonly float timeBetweenSerializations = 1f / 6f;
-        float nextSerializationTime = 0f;
-        public bool serialize = false;
+        public string[] DebugText
+        {
+            get
+            {
+                string[] returnString = new string[]
+                {
+                    $"Debug of {nameof(StationController)} called {gameObject.name}",
+                    $"{nameof(attachedTransformIndex)} = {attachedTransformIndex}",
+                    $"{nameof(syncedLocalPlayerPosition)} = {syncedLocalPlayerPosition}",
+                    $"transform.localPosition = {transform.localPosition}",
+                    $"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}",
+                    $"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}",
+                    $"{nameof(groundTransform)} = {groundTransform}",
+                    $"{nameof(movingTransforms)}{((movingTransforms != null) ? ($".Lenght = {movingTransforms.Length}") : (" = null"))}",
+                    $"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}",
+                    $"{nameof(Owner)}.isLocal = {Owner.isLocal}",
+                    $"{nameof(linkedStation)}{((linkedStation != null) ? ($".PlayerMobility = {linkedStation.PlayerMobility}") : ("= null"))}",
+                    $"{nameof(NUMovementSyncModLink)} = {NUMovementSyncModLink}",
+                    $"{nameof(OnOwnerSetRan)} = {OnOwnerSetRan}",
+                };
 
-        bool myStation = false;
+                return returnString;
+            }
+        }
 
-        float smoothHeading = 0;
-
+        //Events
         private void Start()
         {
-            linkedStation = transform.GetComponent<VRCStation>();
+            Setup();
         }
 
         //public override void PostLateUpdate()
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Home))
-            {
-                Debug.Log($" ");
-                Debug.Log($"Debug of {nameof(StationController)}");
-                Debug.Log($"{nameof(attachedTransformIndex)} = {attachedTransformIndex}");
-                Debug.Log($"{nameof(syncedLocalPlayerPosition)} = {syncedLocalPlayerPosition}");
-                Debug.Log($"transform.localPosition = {transform.localPosition}");
-                Debug.Log($"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}");
-                Debug.Log($"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}");
-                Debug.Log($"{nameof(groundTransform)} = {groundTransform}");
-                Debug.Log($"{nameof(movingTransforms)}.Length = {movingTransforms.Length}");
-                Debug.Log($"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}");
-                Debug.Log($"{nameof(Owner)}.isLocal = {Owner.isLocal}");
-                if (linkedStation) Debug.Log($"{nameof(linkedStation)}.PlayerMobility = {linkedStation.PlayerMobility}");
-                Debug.Log($"{nameof(NUMovementSyncModLink)} = {NUMovementSyncModLink}");
-                Debug.Log($"{nameof(setupComplete)} = {setupComplete}");
-                //Debug.Log($"{nameof()} = {}");
-            }
-
             if (myStation)
             {
                 if(attachedTransformIndex >= 0)
@@ -81,6 +109,8 @@ namespace NUMovementPlatformSyncMod
                     {
                         RequestSerialization();
                     }
+
+                    if (inVR) CheckAndFixPlayspaceInVR();
                 }
             }
             else
@@ -101,6 +131,12 @@ namespace NUMovementPlatformSyncMod
             attachedTransformIndex = index;
             groundTransform = newTransform;
             transform.parent = newTransform;
+
+            if (inVR)
+            {
+                initialLocalPlayspaceRotation = Quaternion.Inverse(newTransform.rotation) * localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
+                initialLocalPlayspaceDirection = Quaternion.Inverse(newTransform.rotation) * localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
+            }
         }
 
         public void LocalPlayerSwitchedTransform(Transform newTransform, int index)
@@ -110,7 +146,6 @@ namespace NUMovementPlatformSyncMod
             transform.parent = newTransform;
         }
 
-
         public void LocalPlayerDetachedFromTransform()
         {
             attachedTransformIndex = -1;
@@ -119,11 +154,11 @@ namespace NUMovementPlatformSyncMod
             RequestSerialization();
         }
 
-        public void _OnOwnerSet()
+        public override void _OnOwnerSet()
         {
-            MovementModLinker linker = transform.parent.parent.GetComponent<MovementModLinker>();
+            Setup();
 
-            NUMovementSyncModLink = linker.LinkedMovementMod;
+            Debug.Log("_OnOwnerSet received");
 
             movingTransforms = NUMovementSyncModLink.MovingTransforms;
 
@@ -131,6 +166,7 @@ namespace NUMovementPlatformSyncMod
             {
                 linkedStation.PlayerMobility = VRCStation.Mobility.Mobile;
 
+                Debug.Log("_OnOwnerSet Attaching sent");
                 NUMovementSyncModLink.AttachStation(this, linkedStation);
 
                 myStation = true;
@@ -141,10 +177,10 @@ namespace NUMovementPlatformSyncMod
                 myStation = false;
             }
 
-            setupComplete = true;
+            OnOwnerSetRan = true;
         }
 
-        public void _OnCleanup()
+        public override void _OnCleanup()
         {
             linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
         }
@@ -154,7 +190,7 @@ namespace NUMovementPlatformSyncMod
         {
             nextSerializationTime = Time.timeSinceLevelLoad + timeBetweenSerializations;
 
-            if (!setupComplete) return;
+            if (!OnOwnerSetRan) return;
 
             if (attachedTransformIndex != -1)
             {
@@ -165,7 +201,7 @@ namespace NUMovementPlatformSyncMod
         
         public override void OnDeserialization()
         {
-            if (!setupComplete) return;
+            if (!OnOwnerSetRan) return;
 
             if (previouslyAttachedTransformIndex != attachedTransformIndex)
             {
@@ -177,7 +213,7 @@ namespace NUMovementPlatformSyncMod
                 }
                 else
                 {
-                    transform.parent = movingTransforms[attachedTransformIndex];
+                    transform.parent = movingTransforms[attachedTransformIndex].transform;
                     transform.SetPositionAndRotation(Owner.GetPosition(), Owner.GetRotation());
 
                     linkedStation.PlayerMobility = VRCStation.Mobility.ImmobilizeForVehicle;
@@ -196,5 +232,7 @@ namespace NUMovementPlatformSyncMod
         {
             
         }
+
+        
     }
 }

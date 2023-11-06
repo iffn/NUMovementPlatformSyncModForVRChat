@@ -6,7 +6,8 @@
         "VRC.Udon",
         "UdonSharp.Runtime",
         "Unity.TextMeshPro",
-        "Nessie.Udon.Movement.Runtime"
+        "Nessie.Udon.Movement.Runtime",
+        "Cyan.PlayerObjectPool.UdonSharp"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
