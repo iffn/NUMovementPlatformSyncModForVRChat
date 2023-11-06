@@ -211,5 +211,96 @@ namespace NUMovementPlatformSyncMod
                 linkedStation.UseStation(Networking.LocalPlayer);
             }
         }
+
+        //Implement friction
+        protected override void ApplyHit(ControllerColliderHit hit)
+        {
+            Vector3 normal = hit.normal;
+            Vector3 point = hit.point;
+
+            Vector3 position = transform.position;
+            Vector3 center = Controller.center;
+
+            float capOffset = Controller.height * 0.5f - Controller.radius;
+            Vector3 bottomCapCenter = position + ControllerDown * capOffset + center;
+            Vector3 topCapCenter = position + ControllerUp * capOffset + center;
+
+            if (Vector3.Dot(Velocity.normalized, normal) < 0f)
+            {
+                if (Vector3.Dot(point - bottomCapCenter, ControllerDown) >= 0f)
+                {
+                    IsGrounded = true;
+                    GroundUp = normal;
+                    if (hit.transform)
+                    {
+                        GroundTransform = hit.transform;
+                        RelativeGroundPosition = GroundTransform.InverseTransformPoint(position);
+                        GroundRotation = GroundTransform.rotation;
+                    }
+
+                    //PhysicMaterial colliderMaterial = hit.collider.material;
+                    PhysicMaterial colliderMaterial = hit.collider.material;
+
+                    float normalLimit;
+
+                    if (colliderMaterial.name.Length == 0)
+                    {
+                        normalLimit = 0.707f; //45°
+                    }
+                    else
+                    {
+                        /*
+                        Friction formulas:
+                        ------------------
+                        α = acos(Ny)
+                            = atan(µ)
+                        
+                        Ny = cos(α)
+                            = cos(atan(µ))
+                        
+                        µ = tan(α)
+                            = tan(acos(Ny)
+
+                        α = slope angle
+                        Ny = Normalized normal y
+                        µ = Friction coefficient
+
+                        */
+
+                        normalLimit = Mathf.Cos(Mathf.Atan(colliderMaterial.staticFriction));
+                    }
+
+                    if (normal.normalized.y < normalLimit)
+                    {
+                        IsSteep = true;
+                    }
+                    else
+                    {
+                        IsWalkable = true;
+                        if (!jumpAuto)
+                        {
+                            HoldJump = false; // Consume.
+                        }
+                    }
+                }
+                else if (Vector3.Dot(point - topCapCenter, ControllerUp) >= 0f)
+                {
+                    IsJumping = false;
+                }
+
+                if (IsWalkable)
+                {
+                    Velocity = HoldMove || HoldJump ? Vector3.ProjectOnPlane(Velocity, -GravityDirection) : Vector3.zero;
+                }
+                else
+                {
+                    Velocity = Vector3.ProjectOnPlane(Velocity, normal);
+                }
+            }
+
+            Color debugColor = IsGrounded ? (!IsSteep ? Color.green : Color.yellow) : Color.red;
+            DrawLine(bottomCapCenter, point, debugColor);
+            DrawCircle(point, normal, 0.25f, debugColor);
+        }
     }
 }
