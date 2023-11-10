@@ -6,14 +6,26 @@ namespace NUMovementPlatformSyncMod.ExampleScene
 {
     public class PlatformMover : UdonSharpBehaviour
     {
-        double transitionTime = 2;
+        [SerializeField] float transitionTime = 2;
 
         [SerializeField] Transform startPosition;
         [SerializeField] Transform endPosition;
 
+        float completeTime;
+        float offset;
+
+        private void Start()
+        {
+            completeTime = transitionTime * 2;
+
+            float currentIntervalServer = (float)Networking.GetServerTimeInSeconds() % completeTime;
+            float currentIntervalLocal = Time.time % completeTime;
+            offset = currentIntervalServer - currentIntervalLocal;
+        }
+
         private void Update()
         {
-            float lerpValue = (float)(Networking.GetServerTimeInSeconds() % (transitionTime * 2) / transitionTime);
+            float lerpValue = ((Time.time + offset) % completeTime) / transitionTime;
             if (lerpValue > 1) lerpValue = 2 - lerpValue;
 
             transform.SetPositionAndRotation(
