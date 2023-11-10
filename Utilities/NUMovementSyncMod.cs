@@ -70,12 +70,12 @@ namespace NUMovementPlatformSyncMod
                 string[] returnString = new string[]
                 {
                     $"Debug of {nameof(NUMovementPlatformSyncMod)}",
-                    $"{nameof(linkedStation)} = {linkedStation}",
-                    $"{nameof(movingTransforms)}.Length = {((movingTransforms != null) ? movingTransforms.Length.ToString() : "null")}",
-                    $"{nameof(LinkedStationController)}.Length = {LinkedStationController}",
-                    $"{nameof(previouslyAttachedTransform)}.Length = {previouslyAttachedTransform}",
-                    $"{nameof(attachedTransformIndex)}.Length = {attachedTransformIndex}",
-                    $"{nameof(currentPlatformState)}.Length = {currentPlatformState}", //ToCheck: enum to string in U#
+                    $"{nameof(linkedStation)} = {(linkedStation == null ? "null" : linkedStation.name)}",
+                    $"{nameof(movingTransforms)} = {((movingTransforms != null) ? ".length +" + movingTransforms.Length.ToString() : "null")}",
+                    $"{nameof(LinkedStationController)} = {(LinkedStationController == null ? "null" : LinkedStationController.name)}",
+                    $"{nameof(previouslyAttachedTransform)} = {(previouslyAttachedTransform == null ? "null" : previouslyAttachedTransform.name)}",
+                    $"{nameof(attachedTransformIndex)} = {attachedTransformIndex}",
+                    $"{nameof(currentPlatformState)} = {currentPlatformState}", //ToCheck: enum to string in U#
                 };
                 
                 return returnString;

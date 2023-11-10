@@ -9,6 +9,12 @@ namespace NUMovementPlatformSyncMod.ExampleScene
     {
         [SerializeField] PlayerColliderController linkedColliderController;
 
+        private void Start()
+        {
+            bool shouldSync = linkedColliderController.shouldSyncPlayer;
+            InteractionText = shouldSync ? "Disable sync" : "Enable sync";
+        }
+
         public override void Interact()
         {
             bool shouldSync = !linkedColliderController.shouldSyncPlayer;

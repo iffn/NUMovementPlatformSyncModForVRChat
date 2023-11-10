@@ -7,7 +7,7 @@ using Cyan.PlayerObjectPool;
 namespace NUMovementPlatformSyncMod
 {
     [RequireComponent(typeof(VRCStation))]
-    [RequireComponent(typeof(NUMovementSyncModLinker))]
+    //[RequireComponent(typeof(NUMovementSyncModLinker))] //Unable to use since CyanPlayerObjectPool doesn't handle it correctly
     public class StationController : CyanPlayerObjectPoolObject
     {
         /*
@@ -26,13 +26,16 @@ namespace NUMovementPlatformSyncMod
         [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
         [UdonSynced] float syncedLocalPlayerHeading = 0;
 
+        //Values to be assigned
+        [SerializeField] NUMovementSyncModLinker NUMovementSyncModLinker;
+        
         //Static values
+        NUMovementSyncMod NUMovementSyncModLink;
         readonly float smoothTime = 0.068f;
         readonly float timeBetweenSerializations = 1f / 6f;
 
         //Static values
         VRCStation linkedStation;
-        NUMovementSyncMod NUMovementSyncModLink;
         PlayerColliderController[] movingTransforms;
         VRCPlayerApi localPlayer;
         bool inVR;
@@ -40,7 +43,6 @@ namespace NUMovementPlatformSyncMod
 
         //Runtime values
         float smoothHeading = 0;
-        public bool serialize = false;
         float nextSerializationTime = 0f;
         public bool OnOwnerSetRan { get; private set; } = false;
         Transform groundTransform;
@@ -54,7 +56,7 @@ namespace NUMovementPlatformSyncMod
         //Funcitons
         void Setup()
         {
-            NUMovementSyncModLink = transform.GetComponent<NUMovementSyncModLinker>().LinkedNUMovementSyncMod;
+            NUMovementSyncModLink = NUMovementSyncModLinker.LinkedNUMovementSyncMod;
             linkedStation = transform.GetComponent<VRCStation>();
             inVR = Networking.LocalPlayer.IsUserInVR();
         }
@@ -63,8 +65,6 @@ namespace NUMovementPlatformSyncMod
         {
             Vector3 originalPlayspaceDirection = groundTransform.rotation * initialLocalPlayspaceDirection;
             originalPlayspaceDirection.y = 0;
-
-
         }
 
         public string[] DebugText
