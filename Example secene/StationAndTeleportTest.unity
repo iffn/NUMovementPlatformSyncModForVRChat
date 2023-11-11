@@ -3487,6 +3487,11 @@ PrefabInstance:
       propertyPath: movingTransforms.Array.data[1]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 348422781635016003, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: serializationData.Prefab
@@ -5003,6 +5008,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721147066013542, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721147066013542, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721147069545676, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5069,6 +5079,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721147184841581, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721147184841581, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721147198933891, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5245,6 +5260,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721147550423555, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721147550423555, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721147556323099, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5608,6 +5628,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148575586297, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148575586297, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148590122346, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5619,6 +5644,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148590122346, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148590122346, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148656878586, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5630,6 +5660,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148656878586, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148656878586, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148669306798, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5674,6 +5709,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148880447434, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148880447434, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148926038827, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5707,6 +5747,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148935883287, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148935883287, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148996432409, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5795,6 +5840,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721149051590975, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721149051590975, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721149066465775, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5828,6 +5878,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721149081983322, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721149081983322, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721149085212836, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5839,6 +5894,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721149085212836, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721149085212836, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721149098709132, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod

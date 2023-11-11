@@ -50,8 +50,6 @@ namespace NUMovementPlatformSyncMod
         Vector3 previousPlayerPosition;
         Vector3 previousPlayerLinearVelocity;
         float previousPlayerAngularVelocity;
-        Quaternion initialLocalPlayspaceRotation;
-        Vector3 initialLocalPlayspaceDirection;
 
         //Funcitons
         void Setup()
@@ -61,12 +59,6 @@ namespace NUMovementPlatformSyncMod
             inVR = Networking.LocalPlayer.IsUserInVR();
         }
 
-        void CheckAndFixPlayspaceInVR()
-        {
-            Vector3 originalPlayspaceDirection = groundTransform.rotation * initialLocalPlayspaceDirection;
-            originalPlayspaceDirection.y = 0;
-        }
-
         public string[] DebugText
         {
             get
@@ -74,15 +66,16 @@ namespace NUMovementPlatformSyncMod
                 string[] returnString = new string[]
                 {
                     $"Debug of {nameof(StationController)} called {gameObject.name}",
+                    $"{nameof(Owner)} = {Owner.displayName}",
+                    $"{nameof(Owner)}.isLocal = {Owner.isLocal}",
                     $"{nameof(attachedTransformIndex)} = {attachedTransformIndex}",
                     $"{nameof(syncedLocalPlayerPosition)} = {syncedLocalPlayerPosition}",
                     $"transform.localPosition = {transform.localPosition}",
                     $"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}",
                     $"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}",
                     $"{nameof(groundTransform)} = {groundTransform}",
-                    $"{nameof(movingTransforms)}{((movingTransforms != null) ? ($".Lenght = {movingTransforms.Length}") : (" = null"))}",
+                    $"{nameof(movingTransforms)}{((movingTransforms != null) ? ($".Length = {movingTransforms.Length}") : (" = null"))}",
                     $"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}",
-                    $"{nameof(Owner)}.isLocal = {Owner.isLocal}",
                     $"{nameof(linkedStation)}{((linkedStation != null) ? ($".PlayerMobility = {linkedStation.PlayerMobility}") : ("= null"))}",
                     $"{nameof(NUMovementSyncModLink)} = {NUMovementSyncModLink}",
                     $"{nameof(OnOwnerSetRan)} = {OnOwnerSetRan}",
@@ -101,6 +94,12 @@ namespace NUMovementPlatformSyncMod
         //public override void PostLateUpdate()
         void Update()
         {
+            if(Input.GetKeyDown(KeyCode.Home))
+            {
+                Debug.Log(DebugStateCollector.ConvertStringArrayToText(DebugText));
+                //DebugStateCollector.WriteStringArrayToConsoleIndividually(DebugText);
+            }
+
             if (myStation)
             {
                 if(attachedTransformIndex >= 0)
@@ -109,8 +108,6 @@ namespace NUMovementPlatformSyncMod
                     {
                         RequestSerialization();
                     }
-
-                    if (inVR) CheckAndFixPlayspaceInVR();
                 }
             }
             else
@@ -127,19 +124,6 @@ namespace NUMovementPlatformSyncMod
         }
 
         public void LocalPlayerAttachedToTransform(Transform newTransform, int index)
-        {
-            attachedTransformIndex = index;
-            groundTransform = newTransform;
-            transform.parent = newTransform;
-
-            if (inVR)
-            {
-                initialLocalPlayspaceRotation = Quaternion.Inverse(newTransform.rotation) * localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
-                initialLocalPlayspaceDirection = Quaternion.Inverse(newTransform.rotation) * localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
-            }
-        }
-
-        public void LocalPlayerSwitchedTransform(Transform newTransform, int index)
         {
             attachedTransformIndex = index;
             groundTransform = newTransform;
