@@ -107,9 +107,6 @@ namespace NUMovementPlatformSyncMod
 
             if (previouslyAttachedTransform != GroundTransform)
             {
-                if (GroundTransform) attachedPlayerCollider = GroundTransform.GetComponent<PlayerColliderController>();
-                else attachedPlayerCollider = null;
-
                 OnGroundChange();
 
                 previouslyAttachedTransform = GroundTransform;
@@ -131,6 +128,7 @@ namespace NUMovementPlatformSyncMod
 
             LinkedStationController.LocalPlayerDetachedFromTransform();
             attachedTransformIndex = -1;
+            attachedPlayerCollider = null;
         }
 
         void OnGroundChange()
@@ -139,6 +137,8 @@ namespace NUMovementPlatformSyncMod
             {
                 //If now in air
                 currentPlatformState = PlatformState.InAir;
+
+                attachedPlayerCollider = null;
 
                 if(attachedTransformIndex >= 0) //Don't detach immediately to maintain smooth sync when jumping on a platform;
                 {
@@ -151,6 +151,8 @@ namespace NUMovementPlatformSyncMod
                 //If now grounded
                 currentPlatformState = PlatformState.Grounded;
 
+                attachedPlayerCollider = GroundTransform.GetComponent<PlayerColliderController>();
+
                 if (attachedPlayerCollider)
                 {
                     //If now attached to synced station
@@ -160,8 +162,9 @@ namespace NUMovementPlatformSyncMod
 
                     if (previouslyAttachedPlayerCollider == null)
                     {
-                        initialLocalPlayspaceRotation = Quaternion.Inverse(GroundTransform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
-                        initialLocalPlayspaceDirection = Quaternion.Inverse(GroundTransform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
+                        initialLocalPlayspaceRotation = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
+                        initialLocalPlayspaceDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
+                        initialLocalPlayspaceDirection.y = 0;
                     }
                 }
                 else
@@ -170,6 +173,7 @@ namespace NUMovementPlatformSyncMod
                     if (attachedTransformIndex < 0) return; //Ignore if already not attached
                     LinkedStationController.LocalPlayerDetachedFromTransform();
                     attachedTransformIndex = -1;
+                    attachedPlayerCollider = null;
                 }
             }
         }
@@ -220,8 +224,9 @@ namespace NUMovementPlatformSyncMod
         {
             base.ApplyToPlayer();
 
-            if (attachedTransformIndex >= 0 && movingTransforms[attachedTransformIndex].shouldSyncPlayer)
+            if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer)
             {
+
                 linkedStation.transform.SetPositionAndRotation(
                     Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).position,
                     Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).rotation);
