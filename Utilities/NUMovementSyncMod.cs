@@ -60,8 +60,6 @@ namespace NUMovementPlatformSyncMod
         Quaternion initialLocalPlayspaceRotation;
         Vector3 initialLocalPlayspaceDirection;
 
-        [SerializeField] TMPro.TextMeshProUGUI debugOutput;
-
         //Setup and debug
         public void AttachStation(StationController linkedStationController, VRCStation linkedStation)
         {
@@ -189,6 +187,21 @@ namespace NUMovementPlatformSyncMod
             }
         }
 
+        //VRChat functions
+        public override void InputLookHorizontal(float value, UdonInputEventArgs args)
+        {
+            base.InputLookHorizontal(value, args);
+
+            if (Mathf.Abs(value) > 0.1f)
+            {
+                revertTurn = false;
+            }
+            else
+            {
+                revertTurn = true;
+            }
+        }
+
         // NUMovement stuff
         protected override void ControllerStart()
         {
@@ -231,28 +244,8 @@ namespace NUMovementPlatformSyncMod
             base._ControllerDisable();
         }
 
-        
-
-
-        public override void InputLookHorizontal(float value, UdonInputEventArgs args)
-        {
-            if(Mathf.Abs(value) > 0.1f)
-            {
-                revertTurn = false;
-            }
-            else
-            {
-                revertTurn = true;
-            }
-        }
-
         protected override void ApplyToPlayer()
         {
-            string debugText = "";
-            debugText += $"{nameof(revertTurn)} = {revertTurn}\n";
-            debugText += $"{nameof(initialLocalPlayspaceDirection)} = {initialLocalPlayspaceDirection}\n";
-
-
             base.ApplyToPlayer();
 
             //Sync stuff
@@ -264,7 +257,6 @@ namespace NUMovementPlatformSyncMod
                     if (revertTurn)
                     {
                         //Fix playspace rotation bug
-                        //Vector3 currentLocalPlayspaceForwardDirection = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
                         Vector3 currentLocalPlayspaceForwardDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
                         float currentHeadingRad = Mathf.Atan2(currentLocalPlayspaceForwardDirection.z, currentLocalPlayspaceForwardDirection.x);
                         float oldHeadingRad = Mathf.Atan2(initialLocalPlayspaceDirection.z, initialLocalPlayspaceDirection.x);
@@ -276,13 +268,6 @@ namespace NUMovementPlatformSyncMod
                         Quaternion rotationOffset = Quaternion.Euler(0, headingOffsetRad * Mathf.Rad2Deg, 0);
 
                         LocalPlayer.TeleportTo(LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, rotationOffset * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation);
-
-                        //Debug
-
-                        debugText += $"{nameof(currentLocalPlayspaceForwardDirection)} = {currentLocalPlayspaceForwardDirection}\n";
-                        debugText += $"{nameof(currentHeadingRad)} = {currentHeadingRad * Mathf.Rad2Deg}\n";
-                        debugText += $"{nameof(oldHeadingRad)} = {oldHeadingRad * Mathf.Rad2Deg}\n";
-                        debugText += $"{nameof(headingOffsetRad)} = {headingOffsetRad * Mathf.Rad2Deg}\n";
                     }
                     else
                     {
@@ -296,8 +281,6 @@ namespace NUMovementPlatformSyncMod
 
                 linkedStation.UseStation(Networking.LocalPlayer);
             }
-
-            debugOutput.text = debugText;
         }
 
         //Implement friction
@@ -352,7 +335,6 @@ namespace NUMovementPlatformSyncMod
                         α = slope angle
                         Ny = Normalized normal y
                         µ = Friction coefficient
-
                         */
 
                         normalLimit = Mathf.Cos(Mathf.Atan(colliderMaterial.staticFriction));
