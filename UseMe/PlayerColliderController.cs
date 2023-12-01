@@ -11,6 +11,10 @@ namespace NUMovementPlatformSyncMod
 
         public bool shouldSyncPlayer = true;
 
+        public Vector3 localForwardDirection = Vector3.forward;
+
+        
+
         public void Setup(int index)
         {
             this.PlatformIndex = index;
