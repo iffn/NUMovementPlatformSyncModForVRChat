@@ -225,68 +225,14 @@ namespace NUMovementPlatformSyncMod
             base._ControllerDisable();
         }
 
-
-        Quaternion RotationOffset()
-        {
-            Vector3 currentLocalPlayspaceForwardDirection = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
-            //Vector3 currentLocalPlayspaceForwardDirection = lookRotation * Vector3.forward;
-            currentLocalPlayspaceForwardDirection.y = 0;
-
-            float currentHeadingRad = Mathf.Atan2(currentLocalPlayspaceForwardDirection.z, currentLocalPlayspaceForwardDirection.x);
-            float oldHeadingRad = Mathf.Atan2(initialLocalPlayspaceDirection.z, initialLocalPlayspaceDirection.x);
-            float headingOffsetRad = currentHeadingRad - oldHeadingRad;
-            //Ensure that heading stays between -180° and +180°
-            if (headingOffsetRad > Mathf.PI) headingOffsetRad -= 2 * Mathf.PI;
-            if (headingOffsetRad < -Mathf.PI) headingOffsetRad += 2 * Mathf.PI;
-
-            Quaternion rotationOffset = Quaternion.Euler(0, headingOffsetRad * Mathf.Rad2Deg, 0);
-
-            return rotationOffset;
-        }
-
         protected override void ApplyToPlayer()
         {
-            //base.ApplyToPlayer();
-
-            //Original function with modification
-            if (MainMenuOpen)
-            {
-                LocalPlayer.SetVelocity(Vector3.zero);
-                return;
-            }
-
-            Vector3 transformPos = transform.position;
-
-            // TODO: Figure out if it's possible to keep the player grounded 100% of the time.
-            bool enableGroundCollider = IsGrounded || ForcePlayerGrounded;
-            groundedCollider.enabled = enableGroundCollider;
-            groundedCollider.center = transformPos;
-
-            // TODO: Figure out why VRChats collider doesn't fully line up with this one.
-            //Quaternion rot = LookRotation;
-            Quaternion rot;
-            if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer && isInVR) rot = RotationOffset() * LookRotation;
-            else rot = LookRotation;
-
-            Vector3 pos = transformPos - rot * LocalPlayPosition * CameraScale;
-            var orientation = InVR ? VRC_SceneDescriptor.SpawnOrientation.AlignRoomWithSpawnPoint : VRC_SceneDescriptor.SpawnOrientation.Default;
-            LocalPlayer.TeleportTo(pos + ControllerDown * Controller.skinWidth, rot, orientation, true);
-
-            bool playerIsMoving = Velocity.magnitude > 0.01f;
-            bool groundIsMoving = GroundVelocity.magnitude > 0.01f;
-            if (playerIsMoving && !IsGrounded || IsSteep || groundIsMoving)
-            {
-                var vel = Velocity / AvatarHeight;
-                if (InVR && groundIsMoving)
-                    vel += GetVROffset() / DeltaTime;
-
-                LocalPlayer.SetVelocity(vel);
-            }
+            base.ApplyToPlayer();
 
             //Sync stuff
             if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer)
             {
-                /*
+                
                 if (isInVR)
                 {
                     //Fix playspace rotation bug
@@ -302,13 +248,13 @@ namespace NUMovementPlatformSyncMod
 
                     Quaternion rotationOffset = Quaternion.Euler(0, headingOffsetRad * Mathf.Rad2Deg, 0);
 
-                    if (revertTurn) _TeleportTo(LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, rotationOffset * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation);
+                    if (revertTurn) LocalPlayer.TeleportTo(LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, rotationOffset * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation);
 
                     string debugText = $"{nameof(currentHeadingRad)} = {currentHeadingRad * Mathf.Rad2Deg}\n{nameof(oldHeadingRad)} = {oldHeadingRad * Mathf.Rad2Deg}\n{nameof(headingOffsetRad)} = {headingOffsetRad * Mathf.Rad2Deg}\n{nameof(revertTurn)} = {revertTurn}";
 
                     debugOutput.text = debugText;
                 }
-                */
+                
 
                 linkedStation.transform.SetPositionAndRotation(
                     Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).position,
