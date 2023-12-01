@@ -55,7 +55,6 @@ namespace NUMovementPlatformSyncMod
         bool isInVR;
         VRCPlayerApi.TrackingDataType teleportTrackingDataType;
         float detachTime;
-
         bool revertTurn = true;
 
         Quaternion initialLocalPlayspaceRotation;
@@ -136,6 +135,15 @@ namespace NUMovementPlatformSyncMod
             attachedPlayerCollider = null;
         }
 
+        void ResetInitialLocalPlayspaceDirection()
+        {
+            if (attachedPlayerCollider == null) return;
+
+            initialLocalPlayspaceRotation = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
+            initialLocalPlayspaceDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
+            initialLocalPlayspaceDirection.y = 0;
+        }
+
         void OnGroundChange()
         {
             if (GroundTransform == null)
@@ -167,9 +175,7 @@ namespace NUMovementPlatformSyncMod
 
                     if (previouslyAttachedPlayerCollider == null)
                     {
-                        initialLocalPlayspaceRotation = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
-                        initialLocalPlayspaceDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
-                        initialLocalPlayspaceDirection.y = 0;
+                        ResetInitialLocalPlayspaceDirection();
                     }
                 }
                 else
@@ -225,36 +231,64 @@ namespace NUMovementPlatformSyncMod
             base._ControllerDisable();
         }
 
+        
+
+
+        public override void InputLookHorizontal(float value, UdonInputEventArgs args)
+        {
+            if(Mathf.Abs(value) > 0.1f)
+            {
+                revertTurn = false;
+            }
+            else
+            {
+                revertTurn = true;
+            }
+        }
+
         protected override void ApplyToPlayer()
         {
+            string debugText = "";
+            debugText += $"{nameof(revertTurn)} = {revertTurn}\n";
+            debugText += $"{nameof(initialLocalPlayspaceDirection)} = {initialLocalPlayspaceDirection}\n";
+
+
             base.ApplyToPlayer();
 
             //Sync stuff
             if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer)
             {
-                
+
                 if (isInVR)
                 {
-                    //Fix playspace rotation bug
-                    Vector3 currentLocalPlayspaceForwardDirection = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
-                    currentLocalPlayspaceForwardDirection.y = 0;
+                    if (revertTurn)
+                    {
+                        //Fix playspace rotation bug
+                        //Vector3 currentLocalPlayspaceForwardDirection = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.forward;
+                        Vector3 currentLocalPlayspaceForwardDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
+                        float currentHeadingRad = Mathf.Atan2(currentLocalPlayspaceForwardDirection.z, currentLocalPlayspaceForwardDirection.x);
+                        float oldHeadingRad = Mathf.Atan2(initialLocalPlayspaceDirection.z, initialLocalPlayspaceDirection.x);
+                        float headingOffsetRad = currentHeadingRad - oldHeadingRad;
+                        //Ensure that heading stays between -180° and +180°
+                        if (headingOffsetRad > Mathf.PI) headingOffsetRad -= 2 * Mathf.PI;
+                        if (headingOffsetRad < -Mathf.PI) headingOffsetRad += 2 * Mathf.PI;
 
-                    float currentHeadingRad = Mathf.Atan2(currentLocalPlayspaceForwardDirection.z, currentLocalPlayspaceForwardDirection.x);
-                    float oldHeadingRad = Mathf.Atan2(initialLocalPlayspaceDirection.z, initialLocalPlayspaceDirection.x);
-                    float headingOffsetRad = currentHeadingRad - oldHeadingRad;
-                    //Ensure that heading stays between -180° and +180°
-                    if (headingOffsetRad > Mathf.PI) headingOffsetRad -= 2 * Mathf.PI;
-                    if (headingOffsetRad < -Mathf.PI) headingOffsetRad += 2 * Mathf.PI;
+                        Quaternion rotationOffset = Quaternion.Euler(0, headingOffsetRad * Mathf.Rad2Deg, 0);
 
-                    Quaternion rotationOffset = Quaternion.Euler(0, headingOffsetRad * Mathf.Rad2Deg, 0);
+                        LocalPlayer.TeleportTo(LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, rotationOffset * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation);
 
-                    if (revertTurn) LocalPlayer.TeleportTo(LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).position, rotationOffset * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.AvatarRoot).rotation);
+                        //Debug
 
-                    string debugText = $"{nameof(currentHeadingRad)} = {currentHeadingRad * Mathf.Rad2Deg}\n{nameof(oldHeadingRad)} = {oldHeadingRad * Mathf.Rad2Deg}\n{nameof(headingOffsetRad)} = {headingOffsetRad * Mathf.Rad2Deg}\n{nameof(revertTurn)} = {revertTurn}";
-
-                    debugOutput.text = debugText;
+                        debugText += $"{nameof(currentLocalPlayspaceForwardDirection)} = {currentLocalPlayspaceForwardDirection}\n";
+                        debugText += $"{nameof(currentHeadingRad)} = {currentHeadingRad * Mathf.Rad2Deg}\n";
+                        debugText += $"{nameof(oldHeadingRad)} = {oldHeadingRad * Mathf.Rad2Deg}\n";
+                        debugText += $"{nameof(headingOffsetRad)} = {headingOffsetRad * Mathf.Rad2Deg}\n";
+                    }
+                    else
+                    {
+                        ResetInitialLocalPlayspaceDirection();
+                    }
                 }
-                
 
                 linkedStation.transform.SetPositionAndRotation(
                     Networking.LocalPlayer.GetTrackingData(teleportTrackingDataType).position,
@@ -262,6 +296,8 @@ namespace NUMovementPlatformSyncMod
 
                 linkedStation.UseStation(Networking.LocalPlayer);
             }
+
+            debugOutput.text = debugText;
         }
 
         //Implement friction

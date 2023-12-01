@@ -1757,13 +1757,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1726803805}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: 0.44282386, z: -0, w: 0.89660865}
   m_LocalPosition: {x: 3.8, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 280985020}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 52.568, z: 0}
 --- !u!1 &1734465750 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5169104393139436300, guid: b6053f822274bc74d84b115ac9c2ab03,
@@ -3784,6 +3784,11 @@ PrefabInstance:
       objectReference: {fileID: 1351951242}
     - target: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+      propertyPath: debugTransform
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 223712563380677063, guid: b6053f822274bc74d84b115ac9c2ab03,
@@ -5436,6 +5441,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721147198933891, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721147198933891, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721147216103061, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5495,6 +5505,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721147402954086, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721147402954086, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721147420699211, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -5976,6 +5991,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148030305693, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148030305693, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148115084867, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -6083,6 +6103,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148355254410, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148355254410, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148375476806, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -6217,6 +6242,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721148669306798, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721148669306798, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721148683753805, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
@@ -6538,6 +6568,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8349721149129217307, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
+    - target: {fileID: 8349721149129217307, guid: b6053f822274bc74d84b115ac9c2ab03,
+        type: 3}
+      propertyPath: serializationData.SerializedFormat
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8349721149142059719, guid: b6053f822274bc74d84b115ac9c2ab03,
         type: 3}
       propertyPath: LinkedNUMovementSyncMod
