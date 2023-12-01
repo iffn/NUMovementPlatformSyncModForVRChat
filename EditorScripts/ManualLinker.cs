@@ -6,19 +6,22 @@ using UnityEditor;
 using UnityEngine.SceneManagement;
 using NUMovementPlatformSyncMod;
 
-public class ManualLinker : EditorWindow
+namespace NUMovementPlatformSyncMod.EditorScripts
 {
-    [MenuItem("Tools/iffnsStuff/MovementModLinker")]
-    public static void ShowWindow()
+    public class ManualLinker : EditorWindow
     {
-        EditorWindow.GetWindow(typeof(ManualLinker));
-    }
-
-    void OnGUI()
-    {
-        if (GUILayout.Button("FindModAndAssignLinkers"))
+        [MenuItem("Tools/iffnsStuff/MovementModLinker")]
+        public static void ShowWindow()
         {
-            AutoOnBuildLinker.FindModAndAssignLinkers();
+            GetWindow(typeof(ManualLinker));
+        }
+
+        void OnGUI()
+        {
+            if (GUILayout.Button("FindModAndAssignLinkers"))
+            {
+                AutoOnBuildLinker.FindModAndAssignLinkers();
+            }
         }
     }
 }
