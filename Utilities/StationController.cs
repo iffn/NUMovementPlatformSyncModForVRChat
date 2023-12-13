@@ -24,7 +24,7 @@ namespace NUMovementPlatformSyncMod
         //Synced values
         [UdonSynced] public int attachedTransformIndex = -1;
         [UdonSynced] Vector3 syncedLocalPlayerPosition = Vector3.zero;
-        [UdonSynced] float syncedLocalPlayerHeading = 0;
+        [UdonSynced] float syncedLocalPlayerHeadingDeg = 0;
 
         //Values to be assigned
         [SerializeField] NUMovementSyncModLinker NUMovementSyncModLinker;
@@ -42,7 +42,7 @@ namespace NUMovementPlatformSyncMod
         bool myStation = false;
 
         //Runtime values
-        float smoothHeading = 0;
+        float smoothHeadingDeg = 0;
         float nextSerializationTime = 0f;
         public bool OnOwnerSetRan { get; private set; } = false;
         Transform groundTransform;
@@ -71,7 +71,7 @@ namespace NUMovementPlatformSyncMod
                     $"{nameof(attachedTransformIndex)} = {attachedTransformIndex}",
                     $"{nameof(syncedLocalPlayerPosition)} = {syncedLocalPlayerPosition}",
                     $"transform.localPosition = {transform.localPosition}",
-                    $"{nameof(syncedLocalPlayerHeading)} = {syncedLocalPlayerHeading}",
+                    $"{nameof(syncedLocalPlayerHeadingDeg)} = {syncedLocalPlayerHeadingDeg}",
                     $"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}",
                     $"{nameof(groundTransform)} = {groundTransform}",
                     $"{nameof(movingTransforms)}{((movingTransforms != null) ? ($".Length = {movingTransforms.Length}") : (" = null"))}",
@@ -116,11 +116,20 @@ namespace NUMovementPlatformSyncMod
                 {
                     transform.localPosition = Vector3.SmoothDamp(transform.localPosition, syncedLocalPlayerPosition, ref previousPlayerLinearVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
 
-                    smoothHeading = Mathf.SmoothDampAngle(smoothHeading, syncedLocalPlayerHeading, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
+                    smoothHeadingDeg = Mathf.SmoothDampAngle(smoothHeadingDeg, syncedLocalPlayerHeadingDeg, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
 
-                    transform.localRotation = Quaternion.Euler(0, smoothHeading, 0);
+                    transform.rotation = Quaternion.Euler(0, smoothHeadingDeg + GetParentHeadingDeg(), 0);
+
+                    //transform.localRotation = Quaternion.Euler(0, smoothHeadingDeg, 0);
                 }
             }
+        }
+
+        float GetParentHeadingDeg()
+        {
+            //float parentHeading = transform.parent.rotation.eulerAngles.y;
+            Vector3 parentForward = transform.parent.forward;
+            return Mathf.Atan2(-parentForward.x, parentForward.z) * Mathf.Rad2Deg;
         }
 
         public void LocalPlayerAttachedToTransform(Transform newTransform, int index)
@@ -179,7 +188,8 @@ namespace NUMovementPlatformSyncMod
             if (attachedTransformIndex != -1)
             {
                 syncedLocalPlayerPosition = transform.localPosition;
-                syncedLocalPlayerHeading = transform.localRotation.eulerAngles.y;
+                syncedLocalPlayerHeadingDeg = transform.rotation.eulerAngles.y - GetParentHeadingDeg();
+                //syncedLocalPlayerHeadingDeg = transform.localRotation.eulerAngles.y;
             }
         }
         
