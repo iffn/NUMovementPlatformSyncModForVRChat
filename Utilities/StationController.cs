@@ -128,7 +128,7 @@ namespace NUMovementPlatformSyncMod
         float GetParentHeadingDeg()
         {
             //float parentHeading = transform.parent.rotation.eulerAngles.y;
-            Vector3 parentForward = transform.parent.forward;
+            Vector3 parentForward = movingTransforms[attachedTransformIndex].transform.rotation * movingTransforms[attachedTransformIndex].localForwardDirection;
             return Mathf.Atan2(-parentForward.x, parentForward.z) * Mathf.Rad2Deg;
         }
 
@@ -188,7 +188,8 @@ namespace NUMovementPlatformSyncMod
             if (attachedTransformIndex != -1)
             {
                 syncedLocalPlayerPosition = transform.localPosition;
-                syncedLocalPlayerHeadingDeg = transform.rotation.eulerAngles.y - GetParentHeadingDeg();
+                syncedLocalPlayerHeadingDeg = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation.eulerAngles.y - GetParentHeadingDeg();
+                
                 //syncedLocalPlayerHeadingDeg = transform.localRotation.eulerAngles.y;
             }
         }
