@@ -118,17 +118,16 @@ namespace NUMovementPlatformSyncMod
 
                     smoothHeadingDeg = Mathf.SmoothDampAngle(smoothHeadingDeg, syncedLocalPlayerHeadingDeg, ref previousPlayerAngularVelocity, smoothTime, Mathf.Infinity, Time.deltaTime);
 
-                    transform.rotation = Quaternion.Euler(0, smoothHeadingDeg + GetParentHeadingDeg(), 0);
-
+                    transform.rotation = Quaternion.Euler(0, smoothHeadingDeg - GetParentHeadingDeg(movingTransforms[attachedTransformIndex]), 0);
                     //transform.localRotation = Quaternion.Euler(0, smoothHeadingDeg, 0);
                 }
             }
         }
 
-        float GetParentHeadingDeg()
+        float GetParentHeadingDeg(PlayerColliderController parentController)
         {
             //float parentHeading = transform.parent.rotation.eulerAngles.y;
-            Vector3 parentForward = movingTransforms[attachedTransformIndex].transform.rotation * movingTransforms[attachedTransformIndex].localForwardDirection;
+            Vector3 parentForward = parentController.transform.rotation * parentController.localForwardDirection;
             return Mathf.Atan2(-parentForward.x, parentForward.z) * Mathf.Rad2Deg;
         }
 
@@ -154,6 +153,8 @@ namespace NUMovementPlatformSyncMod
             Debug.Log("_OnOwnerSet received");
 
             movingTransforms = NUMovementSyncModLink.MovingTransforms;
+
+            localPlayer = Networking.LocalPlayer;
 
             if (Owner.isLocal)
             {
@@ -188,8 +189,8 @@ namespace NUMovementPlatformSyncMod
             if (attachedTransformIndex != -1)
             {
                 syncedLocalPlayerPosition = transform.localPosition;
-                syncedLocalPlayerHeadingDeg = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation.eulerAngles.y - GetParentHeadingDeg();
-                
+
+                syncedLocalPlayerHeadingDeg = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation.eulerAngles.y + GetParentHeadingDeg(movingTransforms[attachedTransformIndex]);
                 //syncedLocalPlayerHeadingDeg = transform.localRotation.eulerAngles.y;
             }
         }

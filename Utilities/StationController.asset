@@ -230,13 +230,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: syncedLocalPlayerHeading
+      Data: syncedLocalPlayerHeadingDeg
     - Name: $v
       Entry: 7
       Data: 14|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: syncedLocalPlayerHeading
+      Data: syncedLocalPlayerHeadingDeg
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 15|System.RuntimeType, mscorlib
@@ -776,13 +776,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: smoothHeading
+      Data: smoothHeadingDeg
     - Name: $v
       Entry: 7
       Data: 45|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: smoothHeading
+      Data: smoothHeadingDeg
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 15
