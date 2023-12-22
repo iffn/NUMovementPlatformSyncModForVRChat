@@ -116,32 +116,6 @@ namespace NUMovementPlatformSyncMod
             }
         }
 
-        public void DetachFromStationWhenInAirEvent()
-        {
-            if (Time.time < detachTime)
-            {
-                return; //Ignore old event
-            }
-
-            if (currentPlatformState != PlatformState.InAir)
-            {
-                return; //Ignore if no longer in the air
-            }
-
-            LinkedStationController.LocalPlayerDetachedFromTransform();
-            attachedTransformIndex = -1;
-            attachedPlayerCollider = null;
-        }
-
-        void ResetInitialLocalPlayspaceDirection()
-        {
-            if (attachedPlayerCollider == null) return;
-
-            initialLocalPlayspaceRotation = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
-            initialLocalPlayspaceDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
-            initialLocalPlayspaceDirection.y = 0;
-        }
-
         void OnGroundChange()
         {
             if (GroundTransform == null)
@@ -183,6 +157,32 @@ namespace NUMovementPlatformSyncMod
                     attachedPlayerCollider = null;
                 }
             }
+        }
+
+        public void DetachFromStationWhenInAirEvent()
+        {
+            if (Time.time < detachTime)
+            {
+                return; //Ignore old event
+            }
+
+            if (currentPlatformState != PlatformState.InAir)
+            {
+                return; //Ignore if no longer in the air
+            }
+
+            LinkedStationController.LocalPlayerDetachedFromTransform();
+            attachedTransformIndex = -1;
+            attachedPlayerCollider = null;
+        }
+
+        void ResetInitialLocalPlayspaceDirection()
+        {
+            if (attachedPlayerCollider == null) return;
+
+            initialLocalPlayspaceRotation = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation;
+            initialLocalPlayspaceDirection = Quaternion.Inverse(attachedPlayerCollider.transform.rotation) * LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * attachedPlayerCollider.localForwardDirection;
+            initialLocalPlayspaceDirection.y = 0;
         }
 
         //VRChat functions
