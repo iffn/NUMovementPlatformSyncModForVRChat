@@ -149,9 +149,7 @@ namespace NUMovementPlatformSyncMod
                 //If now in air
                 currentPlatformState = PlatformState.InAir;
 
-                attachedPlayerCollider = null;
-
-                if(attachedTransformIndex >= 0) //Don't detach immediately to maintain smooth sync when jumping on a platform;
+                if (attachedPlayerCollider != null) //Don't detach immediately to maintain smooth sync when jumping on a platform;
                 {
                     detachTime = Time.time + airTimeBeforePlatformDetach;
                     SendCustomEventDelayedSeconds(nameof(DetachFromStationWhenInAirEvent), airTimeBeforePlatformDetach);
