@@ -11,8 +11,9 @@ https://github.com/CyanLaser/CyanPlayerObjectPool
 ## How to use
 - Make sure NUMovement and CyanPlayerObjectPool are added to Unity project (See Requrements, added in Packages)
 - Put the MovementSytem Prefab into the Scene
-- Add all moving colliers where the player can stand on to the Moving Platforms array inside the MovementSystem -> iffnsNuMovementMod GameObject
-- Add the StationInformer script to each Station where people can sit on and link the
+- Add the PlayerColliderController script to all moving colliders where the player can stand on and make sure ShouldSyncPlayer is correctly set.
+- Add the StationInformer script to each Station where people can sit on
+- Link all components using the custom tool: Top of Unity window -> Tools -> iffnsStuff -> MovementModLinker. (Not yet automatic on build.)
 
 ## How it works
 NUMovement teleports the player each frame. Due to the sync delay in VRChat, the remote players would appear behind the platform.
@@ -27,7 +28,6 @@ The system works by:
   - Set the station to mobile and use the VRChat sync
 
 ## Current bugs:
-- Interpolation between updates not smooth
-- Entry and exit transition not smooth synced
-- Jumping is not smoothly synced
-- The remote player rotation is not leveled relative to the world
+- Interpolation between updates not smooth (caused by VRChat, no workaround found so far)
+- The large VRChat menu cannot be opened while on a platform (VRChat limitation, added ability to disable the sync temprarily)
+- Entry and exit transition not smooth synced (Test again)
