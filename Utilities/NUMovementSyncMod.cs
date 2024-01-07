@@ -48,7 +48,6 @@ namespace NUMovementPlatformSyncMod
         public StationController LinkedStationController { get; private set; }
         VRCStation linkedStation;
         PlatformState currentPlatformState = PlatformState.InAir;
-        int attachedTransformIndex = -1;
         Transform previouslyAttachedTransform;
         PlayerColliderController attachedPlayerCollider;
         PlayerColliderController previouslyAttachedPlayerCollider;
@@ -80,7 +79,6 @@ namespace NUMovementPlatformSyncMod
                     $"{nameof(movingTransforms)} length = {((movingTransforms != null) ? movingTransforms.Length.ToString() : "null")}",
                     $"{nameof(LinkedStationController)} = {(LinkedStationController == null ? "null" : LinkedStationController.name)}",
                     $"{nameof(previouslyAttachedTransform)} = {(previouslyAttachedTransform == null ? "null" : previouslyAttachedTransform.name)}",
-                    $"{nameof(attachedTransformIndex)} = {attachedTransformIndex}",
                     $"{nameof(currentPlatformState)} = {currentPlatformState}", //ToCheck: enum to string in U#
                 };
                 
@@ -134,14 +132,14 @@ namespace NUMovementPlatformSyncMod
                 //If now grounded
                 currentPlatformState = PlatformState.Grounded;
 
+                PlayerColliderController previouslyAttachedColliderController = attachedPlayerCollider;
+
                 attachedPlayerCollider = GroundTransform.GetComponent<PlayerColliderController>();
 
                 if (attachedPlayerCollider)
                 {
                     //If now attached to synced station
-                    attachedTransformIndex = attachedPlayerCollider.PlatformIndex;
-
-                    LinkedStationController.LocalPlayerAttachedToTransform(GroundTransform, attachedTransformIndex);
+                    LinkedStationController.LocalPlayerAttachedToTransform(attachedPlayerCollider);
 
                     if (previouslyAttachedPlayerCollider == null)
                     {
@@ -150,11 +148,9 @@ namespace NUMovementPlatformSyncMod
                 }
                 else
                 {
-                    //If not not attached to sync station
-                    if (attachedTransformIndex < 0) return; //Ignore if already not attached
-                    LinkedStationController.LocalPlayerDetachedFromTransform();
-                    attachedTransformIndex = -1;
-                    attachedPlayerCollider = null;
+                    //If not not attached to sync station: Notify of disconnect
+                    if (previouslyAttachedColliderController)
+                        LinkedStationController.LocalPlayerAttachedToTransform(null);
                 }
             }
         }
@@ -171,8 +167,7 @@ namespace NUMovementPlatformSyncMod
                 return; //Ignore if no longer in the air
             }
 
-            LinkedStationController.LocalPlayerDetachedFromTransform();
-            attachedTransformIndex = -1;
+            LinkedStationController.LocalPlayerAttachedToTransform(null);
             attachedPlayerCollider = null;
         }
 
@@ -249,7 +244,6 @@ namespace NUMovementPlatformSyncMod
             //Sync stuff
             if (attachedPlayerCollider && attachedPlayerCollider.shouldSyncPlayer)
             {
-
                 if (isInVR)
                 {
                     if (revertTurn)

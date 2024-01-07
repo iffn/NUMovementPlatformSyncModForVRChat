@@ -45,7 +45,7 @@ namespace NUMovementPlatformSyncMod
         float smoothHeadingDeg = 0;
         float nextSerializationTime = 0f;
         public bool OnOwnerSetRan { get; private set; } = false;
-        Transform groundTransform;
+        PlayerColliderController attachedPlayerColliderCanBeNull;
         int previouslyAttachedTransformIndex = -1;
         Vector3 previousPlayerPosition;
         Vector3 previousPlayerLinearVelocity;
@@ -73,8 +73,9 @@ namespace NUMovementPlatformSyncMod
                     $"transform.localPosition = {transform.localPosition}",
                     $"{nameof(syncedLocalPlayerHeadingDeg)} = {syncedLocalPlayerHeadingDeg}",
                     $"transform.localRotation.eulerAngles = {transform.localRotation.eulerAngles}",
-                    $"{nameof(groundTransform)} = {groundTransform}",
-                    $"{nameof(movingTransforms)}{((movingTransforms != null) ? ($".Length = {movingTransforms.Length}") : (" = null"))}",
+                    $"transform.parent = {(transform.parent != null ? transform.parent.name : " null")}",
+                    $"{nameof(attachedPlayerColliderCanBeNull)} = {(attachedPlayerColliderCanBeNull != null ? attachedPlayerColliderCanBeNull.transform.name : " null")}",
+                    $"{nameof(movingTransforms)}{(movingTransforms != null ? $".Length = {movingTransforms.Length}" : (" = null"))}",
                     $"{nameof(previouslyAttachedTransformIndex)} = {previouslyAttachedTransformIndex}",
                     $"{nameof(linkedStation)}{((linkedStation != null) ? ($".PlayerMobility = {linkedStation.PlayerMobility}") : ("= null"))}",
                     $"{nameof(NUMovementSyncModLink)} = {NUMovementSyncModLink}",
@@ -102,7 +103,7 @@ namespace NUMovementPlatformSyncMod
 
             if (myStation)
             {
-                if(attachedTransformIndex >= 0)
+                if (attachedPlayerColliderCanBeNull && attachedPlayerColliderCanBeNull.shouldSyncPlayer)
                 {
                     if(Time.timeSinceLevelLoad > nextSerializationTime)
                     {
@@ -121,6 +122,15 @@ namespace NUMovementPlatformSyncMod
                     transform.rotation = Quaternion.Euler(0, smoothHeadingDeg - GetParentHeadingDeg(movingTransforms[attachedTransformIndex]), 0);
                     //transform.localRotation = Quaternion.Euler(0, smoothHeadingDeg, 0);
                 }
+                else
+                {
+                    /*
+                    if (Owner != null)
+                    {
+                        transform.SetPositionAndRotation(Owner.GetPosition(), Owner.GetRotation());
+                    }
+                    */
+                }
             }
         }
 
@@ -131,18 +141,20 @@ namespace NUMovementPlatformSyncMod
             return Mathf.Atan2(-parentForward.x, parentForward.z) * Mathf.Rad2Deg;
         }
 
-        public void LocalPlayerAttachedToTransform(Transform newTransform, int index)
+        public void LocalPlayerAttachedToTransform(PlayerColliderController newPlayerColliderCanBeNull)
         {
-            attachedTransformIndex = index;
-            groundTransform = newTransform;
-            transform.parent = newTransform;
-        }
+            attachedPlayerColliderCanBeNull = newPlayerColliderCanBeNull;
 
-        public void LocalPlayerDetachedFromTransform()
-        {
-            attachedTransformIndex = -1;
-            groundTransform = null;
-            
+            if (attachedPlayerColliderCanBeNull)
+            {
+                transform.parent = attachedPlayerColliderCanBeNull.transform;
+            }
+            else
+            {
+                transform.parent = null;
+            }
+
+            //Sync
             RequestSerialization();
         }
 
@@ -186,12 +198,18 @@ namespace NUMovementPlatformSyncMod
 
             if (!OnOwnerSetRan) return;
 
-            if (attachedTransformIndex != -1)
+            if(attachedPlayerColliderCanBeNull && attachedPlayerColliderCanBeNull.shouldSyncPlayer)
             {
+                attachedTransformIndex = attachedPlayerColliderCanBeNull.PlatformIndex;
+
                 syncedLocalPlayerPosition = transform.localPosition;
 
                 syncedLocalPlayerHeadingDeg = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation.eulerAngles.y + GetParentHeadingDeg(movingTransforms[attachedTransformIndex]);
-                //syncedLocalPlayerHeadingDeg = transform.localRotation.eulerAngles.y;
+                //syncedLocalPlayerHeadingDeg = transform.localRotation.eulerAngles.y; //Old sync without vertical orientation
+            }
+            else
+            {
+                attachedTransformIndex = -1;
             }
         }
         
